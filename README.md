@@ -1,7 +1,7 @@
 # Facial-Rec-GUI
 Facial Rec GUI for CompreFace
 
-This code is designed to work with CompreFace running on docker on your local machine. 
+This code is designed to work with CompreFace Facial Recognition running on docker. 
 
 It creates a simple GUI to allow you to search a directory (and its subdirectories) full of your jpg files for a particular subjects face as well as adding new subjects and faces
 
