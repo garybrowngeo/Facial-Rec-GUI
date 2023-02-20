@@ -35,11 +35,13 @@ old_stdout = sys.stdout
 log_file = open("Results.txt","w")
 sys.stdout = log_file
 
+#Define Funtions:
+
 #Define function to call api and search pictures
 def facial_rec(file,person,matchs):
     '''Check input file to find any face matches'''
     api_url = 'http://localhost:8000/api/v1/recognition/recognize'
-    headers = {'x-api-key':'b36a769b-fe69-4b5f-a3cd-24744cd0be2e'} 
+    headers = {'x-api-key':API_KEY} 
     files = {'file': open(file, 'rb')}
     try:
         response=requests.post(api_url, headers=headers, files=files, auth=None)
@@ -92,6 +94,8 @@ def facial_rec_add(subject):
 def close_log():
     sys.stdout = old_stdout
     log_file.close()
+
+#Define GUI windows
 
 #define GUI main menu
 def main_menu(window = ""):
