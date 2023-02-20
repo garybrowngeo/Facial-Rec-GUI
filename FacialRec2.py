@@ -165,26 +165,33 @@ def results_gui(results,window):
                 self.w1 = Frame(parent)
                 self.w1.configure(bg = '#000000')
                 self.w1.place(x = 0, y = 0, width = 500, height = 450)
-            self.list1 = Listbox(self.w1, font = tkinter.font.Font(family = "Segoe UI", size = 9), cursor = "arrow", state = "normal")
-            self.list1.place(x = 30, y = 50, width = 430, height = 350)
+            self.list1 = Listbox(self.w1, font = tkinter.font.Font(family = "Segoe UI", size = 9), selectmode = "SINGLE", cursor = "arrow", state = "normal")
+            self.list1.place(x = 10, y = 50, width = 480, height = 300)
             list_no = 0
             for match in results:
                 list_no +=1
                 self.list1.insert(list_no, match)
+            scrollbar_v = Scrollbar(self.list1, orient="vertical")
+            scrollbar_v.config(command=self.list1.yview)
+            scrollbar_v.pack(side="right", fill= "y")
+            self.list1.config(yscrollcommand = scrollbar_v.set)
+            scrollbar_h = Scrollbar(self.list1, orient="horizontal")
+            scrollbar_h.config(command=self.list1.xview)
+            scrollbar_h.pack(side="bottom", fill= "both")
+            self.list1.config(xscrollcommand = scrollbar_h.set)
             self.label1 = Label(self.w1, text = "Matchs Found:", anchor='w', fg = "#ffffff", bg = "#000000", font = tkinter.font.Font(family = "Calibri", size = 10, weight = "bold"), cursor = "arrow", state = "normal")
-            self.label1.place(x = 30, y = 20, width = 230, height = 22)
+            self.label1.place(x = 10, y = 20, width = 230, height = 22)
             self.label2 = Label(self.w1, text = "Full results can be found in Results.txt", anchor='w', fg = "#ffffff", bg = "#000000", font = tkinter.font.Font(family = "Calibri", size = 10, weight = "bold"), cursor = "arrow", state = "normal")
-            self.label2.place(x = 30, y = 380, width = 430, height = 22)
-            self.list1.bind("<<ListboxSelect>>", self.image_open)       
+            self.label2.place(x = 10, y = 380, width = 430, height = 22)
+            self.list1.bind("<<ListboxSelect>>", self.image_open)
 
         def image_open(self,arg2):
             selection = self.list1.curselection()
             image = self.list1.get(selection)
             im = Image.open(image)
             im.show()
-            im = ""
-        
-        
+    
+
         
     if __name__ == '__main__':
         b = result_gui(0)
@@ -227,10 +234,7 @@ def selection_gui(window):
     #Define actions to perform when submit button pressed
         def submit(self):
             # Create a list containing all .jpg files with path
-#            root = tkinter.Tk()
-#            root.withdraw()
             file_path = Path(filedialog.askdirectory())
-#            root.destroy()
             file_list = []
             file_list.extend(list(file_path.glob('**/*.jpg')))
             # Get selection and run facial rec
