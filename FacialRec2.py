@@ -16,10 +16,17 @@ from compreface import CompreFace
 from compreface.service import RecognitionService
 from compreface.collections import FaceCollection
 from compreface.collections.face_collections import Subjects
+#from Environment_variables import DOMAIN, PORT, API_KEY
+try: 
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
-DOMAIN: str = 'http://localhost'
-PORT: str = '8000'
-API_KEY: str = 'b36a769b-fe69-4b5f-a3cd-24744cd0be2e'
+my_env = pickle.load(open('my_env.pkl', 'rb'))
+
+DOMAIN: str = my_env[0]
+PORT: str = my_env[1]
+API_KEY: str = my_env[2]
 
 compre_face: CompreFace = CompreFace(DOMAIN, PORT)
 
