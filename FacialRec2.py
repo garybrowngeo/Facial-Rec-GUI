@@ -190,12 +190,18 @@ def results_gui(results,window):
             self.label2 = Label(self.w1, text = "Full results can be found in Results.txt", anchor='w', fg = "#ffffff", bg = "#000000", font = tkinter.font.Font(family = "Calibri", size = 10, weight = "bold"), cursor = "arrow", state = "normal")
             self.label2.place(x = 10, y = 380, width = 430, height = 22)
             self.list1.bind("<<ListboxSelect>>", self.image_open)
+            self.button1 = Button(self.w1, text = "View Pictures", font = tkinter.font.Font(family = "Calibri", size = 9), cursor = "arrow", state = "normal")
+            self.button1.place(x = 20, y = 420, width = 150, height = 22)
+            self.button1['command'] = self.menu_results           
 
         def image_open(self,arg2):
             selection = self.list1.curselection()
             image = self.list1.get(selection)
             im = Image.open(image)
             im.show()
+
+        def menu_results(self):
+            view_results(results,self)
     
 
         
@@ -203,11 +209,12 @@ def results_gui(results,window):
         b = result_gui(0)
         b.w1.mainloop()
 
-def view_results(results):    
-    class ViewResults():
+def view_results(results,window):
+    window.w1.destroy()
+    class PictureView():
         def __init__(self, parent):
             self.gui(parent)
- 
+
         def gui(self, parent):
             if parent == 0:
                 self.w1 = Tk()
@@ -216,19 +223,30 @@ def view_results(results):
             else:
                 self.w1 = Frame(parent)
                 self.w1.place(x = 0, y = 0, width = 1440, height = 940)
-            i = 0           
-            for image in results:
-                self.image1 = Canvas(self.w1, bg = 'white')
-                self.image1i = Image.open(image)
-                self.image1img = ImageTk.PhotoImage(self.image1i.resize((178, 208)))
-                self.image1.create_image(0, 0, image = self.image1img, anchor=NW)
-                self.image1.pack()
+            i = 1
+            x = [40,240,440,640,840,1040,1240]
+            y = 30
+            for match in results:
+                if i <= 6:
+                    y1 = y
+                    a = (i-1)
+                if a == 6:
+                    a = 0
+                    y1 += 220
+                x1 = x[a]
+                a += 1
+                globals()['self.image%s' % i] = Canvas(self.w1, bg = 'black')
+                globals()['self.image%s' % i].place(x = x1, y = y1, width = 178, height = 208)                
+                globals()[('self.image%s' % i)+'im'] = Image.open(match)
+                globals()[('self.image%s' % i)+'img'] = ImageTk.PhotoImage(globals()[('self.image%s' % i)+'im'].resize((178, 208)))
+                globals()['self.image%s' % i].create_image(0, 0, image = globals()[('self.image%s' % i)+'img'], anchor=NW)
                 i += 1
 
 
     if __name__ == '__main__':
-        a = ViewResults(0)
-        a.w1.mainloop() 
+        a = PictureView(0)
+        a.w1.mainloop()
+
 
 #define GUI selection window
 def selection_gui(window):        
@@ -289,8 +307,8 @@ def selection_gui(window):
                     for match in matchs:
                         print(match)
                     close_log()
-#                    results_gui(matchs,self)
-                    view_results(matchs)
+                    results_gui(matchs,self)
+#                    view_results(matchs,self)
     
 
     if __name__ == '__main__':
