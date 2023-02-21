@@ -4,14 +4,13 @@ from tkinter.ttk import Combobox
 from tkinter.ttk import Notebook
 from tkinter.ttk import Treeview
 from tkinter import filedialog
-from PIL import Image
+from PIL import Image, ImageTk
 import tkinter.font
 from pathlib import Path
 import requests
 from requests.auth import HTTPBasicAuth
 import json
 import sys
-from requests_file import FileAdapter
 from compreface import CompreFace
 from compreface.service import RecognitionService
 from compreface.collections import FaceCollection
@@ -203,7 +202,33 @@ def results_gui(results,window):
     if __name__ == '__main__':
         b = result_gui(0)
         b.w1.mainloop()
-    
+
+def view_results(results):    
+    class ViewResults():
+        def __init__(self, parent):
+            self.gui(parent)
+ 
+        def gui(self, parent):
+            if parent == 0:
+                self.w1 = Tk()
+                self.w1.geometry('1440x940')
+                self.w1.title("Facial Recognition - View Pictures")
+            else:
+                self.w1 = Frame(parent)
+                self.w1.place(x = 0, y = 0, width = 1440, height = 940)
+            i = 0           
+            for image in results:
+                self.image1 = Canvas(self.w1, bg = 'white')
+                self.image1i = Image.open(image)
+                self.image1img = ImageTk.PhotoImage(self.image1i.resize((178, 208)))
+                self.image1.create_image(0, 0, image = self.image1img, anchor=NW)
+                self.image1.pack()
+                i += 1
+
+
+    if __name__ == '__main__':
+        a = ViewResults(0)
+        a.w1.mainloop() 
 
 #define GUI selection window
 def selection_gui(window):        
@@ -264,7 +289,8 @@ def selection_gui(window):
                     for match in matchs:
                         print(match)
                     close_log()
-                    results_gui(matchs,self)
+#                    results_gui(matchs,self)
+                    view_results(matchs)
     
 
     if __name__ == '__main__':
