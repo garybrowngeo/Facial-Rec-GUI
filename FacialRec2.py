@@ -35,7 +35,6 @@ face_collection: FaceCollection = recognition.get_face_collection()
 
 subjects: Subjects = recognition.get_subjects()
 
-
 #redirect print to log file
 old_stdout = sys.stdout
 log_file = open("Results.txt","w")
@@ -46,7 +45,7 @@ sys.stdout = log_file
 #Define function to call api and search pictures
 def facial_rec(file,person,matchs):
     '''Check input file to find any face matches'''
-    api_url = 'http://localhost:8000/api/v1/recognition/recognize'
+    api_url = '{}:{}/api/v1/recognition/recognize'.format(DOMAIN,PORT)
     headers = {'x-api-key':API_KEY} 
     files = {'file': open(file, 'rb')}
     try:
@@ -74,7 +73,7 @@ def facial_rec(file,person,matchs):
 #Define function to list subjects
 def facial_rec_query():
     '''List available subjects'''
-    api_url = 'http://localhost:8000/api/v1/recognition/subjects/'
+    api_url = '{}:{}/api/v1/recognition/subjects/'.format(DOMAIN,PORT)
     headers = {'Content-Type':'application/json',
                'x-api-key': API_KEY
     }
@@ -308,8 +307,7 @@ def selection_gui(window):
                         print(match)
                     close_log()
                     results_gui(matchs,self)
-#                    view_results(matchs,self)
-    
+
 
     if __name__ == '__main__':
         a = SelectionWindow(0)
