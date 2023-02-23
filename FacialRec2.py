@@ -154,8 +154,11 @@ def main_menu(window = ""):
         a.w1.mainloop()
 
 #define GUI results window
-def results_gui(results,window):
-    window.w1.destroy()
+def results_gui(results,window = ""):
+    try:
+        window.w1.destroy()
+    except:
+        window = ""
     class result_gui():
         def __init__(self, parent):
             self.gui(parent)
@@ -207,6 +210,7 @@ def results_gui(results,window):
     if __name__ == '__main__':
         b = result_gui(0)
         b.w1.mainloop()
+    main_menu()
 
 def view_results(results,window):
     window.w1.destroy()
@@ -217,34 +221,48 @@ def view_results(results,window):
         def gui(self, parent):
             if parent == 0:
                 self.w1 = Tk()
-                self.w1.geometry('1440x940')
+                self.w1.geometry('800x600')
                 self.w1.title("Facial Recognition - View Pictures")
             else:
                 self.w1 = Frame(parent)
-                self.w1.place(x = 0, y = 0, width = 1440, height = 940)
+                self.w1.place(x = 0, y = 0, width = 800, height = 600)
+            self.w1.resizable(True, True)
+            self.frame1 = Frame(self.w1)
+            self.frame1.pack(fill=X,side=BOTTOM)
+            self.canvas1 = Canvas(self.w1)
+            self.canvas1.pack(side=LEFT,fill=BOTH,expand=1)
+            self.scrollbar_x = Scrollbar(self.frame1,orient=HORIZONTAL,command=self.canvas1.xview)
+            self.scrollbar_x.pack(side=BOTTOM,fill=X)
+            self.scrollbar_v = Scrollbar(self.w1, orient=VERTICAL, command=self.canvas1.yview)
+            self.scrollbar_v.pack(side=RIGHT,fill=Y)
+            self.canvas1.configure(xscrollcommand = self.scrollbar_x.set)
+            self.canvas1.configure(yscrollcommand = self.scrollbar_v.set)
+            self.canvas1.bind("<Configure>",lambda e: self.canvas1.config(scrollregion = self.canvas1.bbox(ALL)))
+            self.frame2 = Frame(self.canvas1)
+            self.canvas1.create_window((0,0), window = self.frame2, anchor = "nw")
+            for b in range(1,5):
+                self.w1.columnconfigure(b, weight=1)
             i = 1
-            x = [40,240,440,640,840,1040,1240]
-            y = 30
+            y = 0
             for match in results:
-                if i <= 6:
-                    y1 = y
-                    a = (i-1)
-                if a == 6:
-                    a = 0
-                    y1 += 220
-                x1 = x[a]
-                a += 1
-                globals()['self.image%s' % i] = Canvas(self.w1, bg = 'black')
-                globals()['self.image%s' % i].place(x = x1, y = y1, width = 178, height = 208)                
+                if i <= 5:
+                    x = (i-1)
+                if x == 5:
+                    x = 0
+                    y += 1
+                x += 1
+                globals()['self.image%s' % i] = Canvas(self.frame2, bg = 'white')
+                globals()['self.image%s' % i].grid(column = x, row = y, sticky = "nw")                
                 globals()[('self.image%s' % i)+'im'] = Image.open(match)
-                globals()[('self.image%s' % i)+'img'] = ImageTk.PhotoImage(globals()[('self.image%s' % i)+'im'].resize((178, 208)))
+                globals()[('self.image%s' % i)+'img'] = ImageTk.PhotoImage(globals()[('self.image%s' % i)+'im'].resize((250,300)))
                 globals()['self.image%s' % i].create_image(0, 0, image = globals()[('self.image%s' % i)+'img'], anchor=NW)
                 i += 1
-
+   
 
     if __name__ == '__main__':
         a = PictureView(0)
         a.w1.mainloop()
+    results_gui(results)
 
 
 #define GUI selection window
