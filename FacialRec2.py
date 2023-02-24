@@ -4,14 +4,13 @@ from tkinter.ttk import Combobox
 from tkinter.ttk import Notebook
 from tkinter.ttk import Treeview
 from tkinter import filedialog
-from PIL import Image
+from PIL import Image, ImageTk
 import tkinter.font
 from pathlib import Path
 import requests
 from requests.auth import HTTPBasicAuth
 import json
 import sys
-from requests_file import FileAdapter
 from compreface import CompreFace
 from compreface.service import RecognitionService
 from compreface.collections import FaceCollection
@@ -36,7 +35,6 @@ face_collection: FaceCollection = recognition.get_face_collection()
 
 subjects: Subjects = recognition.get_subjects()
 
-
 #redirect print to log file
 old_stdout = sys.stdout
 log_file = open("Results.txt","w")
@@ -47,7 +45,7 @@ sys.stdout = log_file
 #Define function to call api and search pictures
 def facial_rec(file,person,matchs):
     '''Check input file to find any face matches'''
-    api_url = 'http://localhost:8000/api/v1/recognition/recognize'
+    api_url = '{}:{}/api/v1/recognition/recognize'.format(DOMAIN,PORT)
     headers = {'x-api-key':API_KEY} 
     files = {'file': open(file, 'rb')}
     try:
@@ -75,7 +73,7 @@ def facial_rec(file,person,matchs):
 #Define function to list subjects
 def facial_rec_query():
     '''List available subjects'''
-    api_url = 'http://localhost:8000/api/v1/recognition/subjects/'
+    api_url = '{}:{}/api/v1/recognition/subjects/'.format(DOMAIN,PORT)
     headers = {'Content-Type':'application/json',
                'x-api-key': API_KEY
     }
@@ -156,8 +154,11 @@ def main_menu(window = ""):
         a.w1.mainloop()
 
 #define GUI results window
-def results_gui(results,window):
-    window.w1.destroy()
+def results_gui(results,window = ""):
+    try:
+        window.w1.destroy()
+    except:
+        window = ""
     class result_gui():
         def __init__(self, parent):
             self.gui(parent)
@@ -191,19 +192,78 @@ def results_gui(results,window):
             self.label2 = Label(self.w1, text = "Full results can be found in Results.txt", anchor='w', fg = "#ffffff", bg = "#000000", font = tkinter.font.Font(family = "Calibri", size = 10, weight = "bold"), cursor = "arrow", state = "normal")
             self.label2.place(x = 10, y = 380, width = 430, height = 22)
             self.list1.bind("<<ListboxSelect>>", self.image_open)
+            self.button1 = Button(self.w1, text = "View Pictures", font = tkinter.font.Font(family = "Calibri", size = 9), cursor = "arrow", state = "normal")
+            self.button1.place(x = 20, y = 420, width = 150, height = 22)
+            self.button1['command'] = self.menu_results           
 
         def image_open(self,arg2):
             selection = self.list1.curselection()
             image = self.list1.get(selection)
             im = Image.open(image)
             im.show()
+
+        def menu_results(self):
+            view_results(results,self)
     
 
         
     if __name__ == '__main__':
         b = result_gui(0)
         b.w1.mainloop()
-    
+    main_menu()
+
+def view_results(results,window):
+    window.w1.destroy()
+    class PictureView():
+        def __init__(self, parent):
+            self.gui(parent)
+
+        def gui(self, parent):
+            if parent == 0:
+                self.w1 = Tk()
+                self.w1.geometry('800x600')
+                self.w1.title("Facial Recognition - View Pictures")
+            else:
+                self.w1 = Frame(parent)
+                self.w1.place(x = 0, y = 0, width = 800, height = 600)
+            self.w1.resizable(True, True)
+            self.frame1 = Frame(self.w1)
+            self.frame1.pack(fill=X,side=BOTTOM)
+            self.canvas1 = Canvas(self.w1)
+            self.canvas1.pack(side=LEFT,fill=BOTH,expand=1)
+            self.scrollbar_x = Scrollbar(self.frame1,orient=HORIZONTAL,command=self.canvas1.xview)
+            self.scrollbar_x.pack(side=BOTTOM,fill=X)
+            self.scrollbar_v = Scrollbar(self.w1, orient=VERTICAL, command=self.canvas1.yview)
+            self.scrollbar_v.pack(side=RIGHT,fill=Y)
+            self.canvas1.configure(xscrollcommand = self.scrollbar_x.set)
+            self.canvas1.configure(yscrollcommand = self.scrollbar_v.set)
+            self.canvas1.bind("<Configure>",lambda e: self.canvas1.config(scrollregion = self.canvas1.bbox(ALL)))
+            self.frame2 = Frame(self.canvas1)
+            self.canvas1.create_window((0,0), window = self.frame2, anchor = "nw")
+            for b in range(1,5):
+                self.w1.columnconfigure(b, weight=1)
+            i = 1
+            y = 0
+            for match in results:
+                if i <= 5:
+                    x = (i-1)
+                if x == 5:
+                    x = 0
+                    y += 1
+                x += 1
+                globals()['self.image%s' % i] = Canvas(self.frame2, bg = 'white')
+                globals()['self.image%s' % i].grid(column = x, row = y, sticky = "nw")                
+                globals()[('self.image%s' % i)+'im'] = Image.open(match)
+                globals()[('self.image%s' % i)+'img'] = ImageTk.PhotoImage(globals()[('self.image%s' % i)+'im'].resize((250,300)))
+                globals()['self.image%s' % i].create_image(0, 0, image = globals()[('self.image%s' % i)+'img'], anchor=NW)
+                i += 1
+   
+
+    if __name__ == '__main__':
+        a = PictureView(0)
+        a.w1.mainloop()
+    results_gui(results)
+
 
 #define GUI selection window
 def selection_gui(window):        
@@ -265,7 +325,7 @@ def selection_gui(window):
                         print(match)
                     close_log()
                     results_gui(matchs,self)
-    
+
 
     if __name__ == '__main__':
         a = SelectionWindow(0)

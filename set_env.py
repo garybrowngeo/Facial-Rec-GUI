@@ -25,7 +25,7 @@ for i in my_env:
         if domain == "":
             my_env[2] = my_env[2]
         else:
-            my_env[2] = str(port)
+            my_env[2] = str(api)
         
 
 pickle.dump(my_env, open('my_env.pkl', 'wb')) 
