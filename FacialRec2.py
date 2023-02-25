@@ -4,7 +4,7 @@ from tkinter.ttk import Combobox
 from tkinter.ttk import Notebook
 from tkinter.ttk import Treeview
 from tkinter import filedialog
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageOps
 import tkinter.font
 from pathlib import Path
 import requests
@@ -100,58 +100,12 @@ def close_log():
     sys.stdout = old_stdout
     log_file.close()
 
+#Define Return to Main Menu to allow closing of menu screen to exit program
+def return_to_menu():
+    main_menu()
+    exit()
+
 #Define GUI windows
-
-#define GUI main menu
-def main_menu(window = ""):
-    try:
-        window.w1.destroy()
-    except:
-        window = ""
-    class MainMenu():
-        def __init__(self, parent):
-            self.gui(parent)
-
-        def gui(self, parent):
-            if parent == 0:
-                self.w1 = Tk()
-                self.w1.configure(bg = '#000000')                
-                self.w1.geometry('500x450')
-                self.w1.title("Facial Recognition - Main Menu")
-            else:
-                self.w1 = Frame(parent)
-                self.w1.place(x = 0, y = 0, width = 500, height = 450)
-            self.label1 = Label(self.w1, text = "Main Menu", anchor='w', fg = "#ffffff", bg = "#000000", font = tkinter.font.Font(family = "Calibri", size = 20, weight = "bold"), cursor = "arrow", state = "normal")
-            self.label1.place(x = 100, y = 40, width = 310, height = 52)
-            self.button1 = Button(self.w1, text = "Add Picture to Subject", font = tkinter.font.Font(family = "Calibri", size = 9), cursor = "arrow", state = "normal")
-            self.button1.place(x = 100, y = 200, width = 300, height = 42)
-            self.button1['command'] = self.add_picture
-            self.button2 = Button(self.w1, text = "List Subjects", font = tkinter.font.Font(family = "Calibri", size = 9), cursor = "arrow", state = "normal")
-            self.button2.place(x = 100, y = 150, width = 300, height = 42)
-            self.button2['command'] = self.list_subjects
-            self.button3 = Button(self.w1, text = "Run Facial Recognition", font = tkinter.font.Font(family = "Calibri", size = 9), cursor = "arrow", state = "normal")
-            self.button3.place(x = 100, y = 250, width = 300, height = 42)
-            self.button3['command'] = self.facial_recognition
-            self.button4 = Button(self.w1, text = "Add Subject", font = tkinter.font.Font(family = "Calibri", size = 9), cursor = "arrow", state = "normal")
-            self.button4.place(x = 100, y = 100, width = 300, height = 42)
-            self.button4['command'] = self.add_subject
-
-        def add_picture(self):
-            add_picture_gui(self)
-            
-
-        def list_subjects(self):
-            list_subjects_gui(self)
-
-        def facial_recognition(self):
-            selection_gui(self)
-
-        def add_subject(self):
-            add_subjects_gui(self)    
-
-    if __name__ == '__main__':
-        a = MainMenu(0)
-        a.w1.mainloop()
 
 #define GUI results window
 def results_gui(results,window = ""):
@@ -210,7 +164,7 @@ def results_gui(results,window = ""):
     if __name__ == '__main__':
         b = result_gui(0)
         b.w1.mainloop()
-    main_menu()
+    return_to_menu()
 
 def view_results(results,window):
     window.w1.destroy()
@@ -240,22 +194,28 @@ def view_results(results,window):
             self.canvas1.bind("<Configure>",lambda e: self.canvas1.config(scrollregion = self.canvas1.bbox(ALL)))
             self.frame2 = Frame(self.canvas1)
             self.canvas1.create_window((0,0), window = self.frame2, anchor = "nw")
-            for b in range(1,5):
-                self.w1.columnconfigure(b, weight=1)
+# Removed as do not need to set grid pattern first
+#            for b in range(1,5):
+#                self.w1.columnconfigure(b, weight=1)
             i = 1
             y = 0
             for match in results:
-                if i <= 5:
+                if i <= 6:
                     x = (i-1)
-                if x == 5:
+                if x == 6:
                     x = 0
                     y += 1
                 x += 1
-                globals()['self.image%s' % i] = Canvas(self.frame2, bg = 'white')
-                globals()['self.image%s' % i].grid(column = x, row = y, sticky = "nw")                
+#Removed as labels seem to work better than creating images
+#                globals()['self.image%s' % i] = Canvas(self.frame2, bg = 'white')
+#                globals()['self.image%s' % i].grid(column = x, row = y, sticky = "nw")                
                 globals()[('self.image%s' % i)+'im'] = Image.open(match)
-                globals()[('self.image%s' % i)+'img'] = ImageTk.PhotoImage(globals()[('self.image%s' % i)+'im'].resize((250,300)))
-                globals()['self.image%s' % i].create_image(0, 0, image = globals()[('self.image%s' % i)+'img'], anchor=NW)
+                globals()[('self.image%s' % i)+'im1'] = ImageOps.fit(globals()[('self.image%s' % i)+'im'], (250, 300), method = 0,  bleed = 0.0, centering =(0.5, 0.5))                
+                globals()[('self.image%s' % i)+'img'] = ImageTk.PhotoImage(globals()[('self.image%s' % i)+'im1'])              
+#               globals()['self.image%s' % i].create_image(0, 0, image = globals()[('self.image%s' % i)+'img'], anchor=NW)
+                globals()['self.label%s' % i] = Label(self.frame2, image = globals()[('self.image%s' % i)+'img'])
+                globals()['self.label%s' % i].image = globals()[('self.image%s' % i)+'img']
+                globals()['self.label%s' % i].grid(column = x, row = y, sticky = "nw")
                 i += 1
    
 
@@ -330,6 +290,7 @@ def selection_gui(window):
     if __name__ == '__main__':
         a = SelectionWindow(0)
         a.w1.mainloop()
+    return_to_menu()
 
 #define GUI add picture window
 def add_picture_gui(window):
@@ -377,6 +338,7 @@ def add_picture_gui(window):
     if __name__ == '__main__':
         a = AddWindow(0)
         a.w1.mainloop()
+    return_to_menu()
 
 #define GUI results window
 def list_subjects_gui(window):
@@ -414,6 +376,7 @@ def list_subjects_gui(window):
     if __name__ == '__main__':
         b = subjects_gui(0)
         b.w1.mainloop()
+    return_to_menu()
 
 #define Add subject window
 def add_subjects_gui(window):
@@ -449,6 +412,7 @@ def add_subjects_gui(window):
     if __name__ == '__main__':
         a = AddSubject(0)
         a.w1.mainloop()    
+    return_to_menu()
 
 #define Add picture to subject results window
 def add_picture_result(subject,window):
@@ -483,6 +447,59 @@ def add_picture_result(subject,window):
     if __name__ == '__main__':
         a = PictureAdd(0)
         a.w1.mainloop()
+    return_to_menu()
+
+#define GUI main menu
+def main_menu(window = ""):
+    try:
+        window.w1.destroy()
+    except:
+        window = ""
+    class MainMenu():
+        def __init__(self, parent):
+            self.gui(parent)
+
+        def gui(self, parent):
+            if parent == 0:
+                self.w1 = Tk()
+                self.w1.configure(bg = '#000000')                
+                self.w1.geometry('500x450')
+                self.w1.title("Facial Recognition - Main Menu")
+            else:
+                self.w1 = Frame(parent)
+                self.w1.place(x = 0, y = 0, width = 500, height = 450)
+            self.label1 = Label(self.w1, text = "Main Menu", anchor='w', fg = "#ffffff", bg = "#000000", font = tkinter.font.Font(family = "Calibri", size = 20, weight = "bold"), cursor = "arrow", state = "normal")
+            self.label1.place(x = 100, y = 40, width = 310, height = 52)
+            self.button1 = Button(self.w1, text = "Add Picture to Subject", font = tkinter.font.Font(family = "Calibri", size = 9), cursor = "arrow", state = "normal")
+            self.button1.place(x = 100, y = 200, width = 300, height = 42)
+            self.button1['command'] = self.add_picture
+            self.button2 = Button(self.w1, text = "List Subjects", font = tkinter.font.Font(family = "Calibri", size = 9), cursor = "arrow", state = "normal")
+            self.button2.place(x = 100, y = 150, width = 300, height = 42)
+            self.button2['command'] = self.list_subjects
+            self.button3 = Button(self.w1, text = "Run Facial Recognition", font = tkinter.font.Font(family = "Calibri", size = 9), cursor = "arrow", state = "normal")
+            self.button3.place(x = 100, y = 250, width = 300, height = 42)
+            self.button3['command'] = self.facial_recognition
+            self.button4 = Button(self.w1, text = "Add Subject", font = tkinter.font.Font(family = "Calibri", size = 9), cursor = "arrow", state = "normal")
+            self.button4.place(x = 100, y = 100, width = 300, height = 42)
+            self.button4['command'] = self.add_subject
+
+        def add_picture(self):
+            add_picture_gui(self)
+            
+
+        def list_subjects(self):
+            list_subjects_gui(self)
+
+        def facial_recognition(self):
+            selection_gui(self)
+
+        def add_subject(self):
+            add_subjects_gui(self)    
+
+    if __name__ == '__main__':
+        a = MainMenu(0)
+        a.w1.mainloop()
+        
 
 # Run application
 main_menu()
