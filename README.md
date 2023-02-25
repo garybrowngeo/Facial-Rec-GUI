@@ -8,4 +8,10 @@ It creates a simple GUI to allow you to search a directory (and its subdirectori
 You will need to follow Compreface's instructions to set-up your instance (https://github.com/exadel-inc/CompreFace) and get your api-key
 from your instance.
 
+Use pip install -r requirements.txt to ensure you have all your dependencies set up in your Python environment
+
 Run set_env.py to setup your environment variables i.e. Domain (Default: http://localhost), Port (Default: 8000) and API Key. These must match the Compreface instance you are running. 
+
+Run FacialRec2.py to start the GUI
+
+
